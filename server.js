@@ -1,13 +1,24 @@
 // server.js - серверная часть для симуляции данных
+// server.js - серверная часть для симуляции данных
 const express = require('express');
 const http = require('http');
+const https = require('https');
 const WebSocket = require('ws');
+const fs = require('fs');
 const cors = require('cors');
 
 const app = express();
 app.use(cors());
 
-const server = http.createServer(app);
+// Обслуживание статичных файлов для клиента
+app.use(express.static('public'));
+
+// Создание HTTPS сервера (используйте сертификаты для продакшна)
+const server = https.createServer({
+  key: fs.readFileSync('key.pem'), // Путь к приватному ключу
+  cert: fs.readFileSync('cert.pem'), // Путь к сертификату
+}, app);
+
 const wss = new WebSocket.Server({ server });
 
 // Генерация случайных данных для судов
@@ -52,6 +63,6 @@ wss.on('connection', (ws) => {
   });
 });
 
-server.listen(3001, () => {
-  console.log('Server is running on port 3001');
+server.listen(443, () => {
+  console.log('Server is running on port 443');
 });
